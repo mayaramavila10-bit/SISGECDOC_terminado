@@ -373,7 +373,161 @@ namespace ConsoleApp1
                     Console.WriteLine("[ERROR AL GUARDAR ARCHIVO]: " + ex.Message);
                 }
             }
+            // =========================================================================
+            // MÓDULO 6: LEER DATOS DIRECTAMENTE DEL ARCHIVO (StreamReader)
+            // Estilo exacto de Leer_datos_Archivo de la clase
+            // =========================================================================
+            static public void Leer_datos_Archivo()
+            {
+                Console.Clear();
+                Console.WriteLine("***** LEER DATOS DESDE ARCHIVO TXT *****");
+                Console.WriteLine("****************************************");
 
+                if (!File.Exists(rutaArchivo))
+                {
+                    Console.WriteLine("No existe el archivo de expedientes (" + rutaArchivo + ")");
+                    return;
+                }
+
+                int num_linea = 1;
+                using (StreamReader lector = new StreamReader(rutaArchivo))
+                {
+                    string linea;
+                    while ((linea = lector.ReadLine()) != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(linea)) continue;
+
+                        string[] partes = linea.Split('|');
+                        if (partes.Length == 9)
+                        {
+                            Console.WriteLine(num_linea + ".- Código: " + partes[0] + " | Fecha: " + partes[1] + " | DNI: " + partes[2] + " | Solicitante: " + partes[3] + " | Área: " + partes[6] + " | Estado: " + partes[7]);
+                            num_linea++;
+                        }
+                    }
+                }
+            }
+
+            // =========================================================================
+            // MÓDULO 7: CARGAR DATOS DESDE ARCHIVO A MEMORIA (File.ReadAllLines)
+            // Estilo exacto de Cargar_datos_Archivo de la clase
+            // =========================================================================
+            static public void Cargar_datos_Archivo()
+            {
+                if (!File.Exists(rutaArchivo))
+                {
+                    return;
+                }
+
+                try
+                {
+                    string[] lineas = File.ReadAllLines(rutaArchivo);
+                    cant_exp = 0;
+
+                    for (int i = 0; i < lineas.Length && cant_exp < max_exp; i++)
+                    {
+                        if (string.IsNullOrWhiteSpace(lineas[i])) continue;
+
+                        string[] partes = lineas[i].Split('|');
+                        if (partes.Length == 9)
+                        {
+                            codigos[cant_exp] = partes[0];
+                            fechas[cant_exp] = partes[1];
+                            dnis[cant_exp] = partes[2];
+                            nombresExp[cant_exp] = partes[3];
+                            asuntos[cant_exp] = partes[4];
+                            foliosExp[cant_exp] = int.Parse(partes[5]);
+                            areas[cant_exp] = partes[6];
+                            estados[cant_exp] = partes[7];
+                            operadores[cant_exp] = partes[8];
+
+                            cant_exp++;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("[ERROR AL CARGAR DATOS]: " + ex.Message);
+                }
+            }
+
+            // =========================================================================
+            // MÓDULO PRINCIPAL (Main) - Estructura usada en los ejercicios de clase
+            // =========================================================================
+            static void Main(string[] args)
+            {
+                // 1. Cargar datos desde archivo al iniciar el programa
+                Cargar_datos_Archivo();
+
+                // 2. Control de acceso
+                if (!Control_acceso())
+                {
+                    Console.WriteLine("[ACCESO DENEGADO] Fin del programa.");
+                    Console.ReadKey();
+                    return;
+                }
+
+                int opc = 0;
+                while (opc != 7)
+                {
+                    Console.Clear();
+                    Titulo();
+                    Console.WriteLine("Operador activo: " + usuarioActual);
+                    Console.WriteLine("Total de expedientes cargados: " + cant_exp);
+                    Console.WriteLine("--------------------------------------------------");
+                    Console.WriteLine("[1] Registrar nuevo expediente");
+                    Console.WriteLine("[2] Buscar expediente (por DNI o Código)");
+                    Console.WriteLine("[3] Derivar expediente a área interna");
+                    Console.WriteLine("[4] Generar / Reimprimir Cargo Digital");
+                    Console.WriteLine("[5] Guardar datos en archivo txt");
+                    Console.WriteLine("[6] Leer datos directamente del archivo txt");
+                    Console.WriteLine("[7] Salir del sistema");
+                    Console.WriteLine("--------------------------------------------------");
+                    Console.Write("Ingresar opción: ");
+
+                    if (!int.TryParse(Console.ReadLine(), out opc))
+                    {
+                        Console.WriteLine("Por favor ingrese un valor numérico válido.");
+                        Console.ReadKey();
+                        continue;
+                    }
+
+                    switch (opc)
+                    {
+                        case 1:
+                            Registro_expediente();
+                            break;
+                        case 2:
+                            buscar_expediente();
+                            break;
+                        case 3:
+                            Derivar_expediente();
+                            break;
+                        case 4:
+                            Reimprimir_cargo();
+                            break;
+                        case 5:
+                            Guardar_datos_Archivo();
+                            break;
+                        case 6:
+                            Leer_datos_Archivo();
+                            break;
+                        case 7:
+                            Console.WriteLine("Cerrando sesión y guardando datos en " + rutaArchivo + "...");
+                            Guardar_datos_Archivo();
+                            Console.WriteLine("Gracias por utilizar SISGECDOC.");
+                            break;
+                        default:
+                            Console.WriteLine("Opción incorrecta, elija de 1 a 7.");
+                            break;
+                    }
+
+                    if (opc != 7)
+                    {
+                        Console.WriteLine("Presione cualquier tecla para continuar...");
+                        Console.ReadKey();
+                    }
+                }
+            }
         }
     }
 }
