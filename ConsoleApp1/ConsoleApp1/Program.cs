@@ -180,6 +180,7 @@ namespace ConsoleApp1
 
                 // Guardar automáticamente en el archivo de datos
                 Guardar_datos_Archivo();
+              
 
                 // Imprimir Cargo Digital
                 Console.WriteLine("================================================================================");
@@ -301,6 +302,78 @@ namespace ConsoleApp1
                     Console.WriteLine("[ERROR] El código de expediente ingresado no existe.");
                 }
             }
+
+            // =========================================================================
+            // MÓDULO 4: REIMPRESIÓN DE CARGO DIGITAL
+            // =========================================================================
+            static public void Reimprimir_cargo()
+            {
+                Console.Clear();
+                Console.WriteLine("** GENERAR / REIMPRIMIR CARGO DIGITAL **");
+                Console.WriteLine("****************");
+
+                Console.Write("Ingrese Código de Expediente: ");
+                string buscarCod = Console.ReadLine()?.Trim().ToUpper();
+
+                bool encontrado = false;
+
+                for (int i = 0; i < cant_exp; i++)
+                {
+                    if (codigos[i].ToUpper() == buscarCod)
+                    {
+                        encontrado = true;
+                        Console.WriteLine("================================================================================");
+                        Console.WriteLine("              CONSTANCIA DE RECEPCIÓN - CARGO DIGITAL                          ");
+                        Console.WriteLine("                  CENTRO DE SALUD MIRONES - MINSA                               ");
+                        Console.WriteLine("================================================================================");
+                        Console.WriteLine(" N° EXPEDIENTE   : " + codigos[i]);
+                        Console.WriteLine(" FECHA Y HORA    : " + fechas[i]);
+                        Console.WriteLine(" CIUDADANO/DNI   : " + nombresExp[i] + " (DNI: " + dnis[i] + ")");
+                        Console.WriteLine(" TRÁMITE / ASUNTO: " + asuntos[i]);
+                        Console.WriteLine(" N° FOLIOS       : " + foliosExp[i]);
+                        Console.WriteLine(" ÁREA DESTINO    : " + areas[i]);
+                        Console.WriteLine(" ESTADO          : " + estados[i]);
+                        Console.WriteLine(" OPERADOR        : " + operadores[i]);
+                        Console.WriteLine("================================================================================");
+                        break;
+                    }
+                }
+
+                if (!encontrado)
+                {
+                    Console.WriteLine("[ERROR] El código de expediente ingresado no existe.");
+                }
+            }
+
+            // =========================================================================
+            // MÓDULO 5: GUARDAR DATOS EN ARCHIVO (.txt) (StreamWriter)
+            // Estilo exacto del ejercicio Caso-Empleado de clase
+            // =========================================================================
+            static public void Guardar_datos_Archivo()
+            {
+                if (cant_exp == 0)
+                {
+                    Console.WriteLine("No hay registros para guardar.");
+                    return;
+                }
+
+                try
+                {
+                    using (StreamWriter escribir = new StreamWriter(rutaArchivo, false))
+                    {
+                        for (int i = 0; i < cant_exp; i++)
+                        {
+                            escribir.WriteLine(codigos[i] + "|" + fechas[i] + "|" + dnis[i] + "|" + nombresExp[i] + "|" + asuntos[i] + "|" + foliosExp[i] + "|" + areas[i] + "|" + estados[i] + "|" + operadores[i]);
+                        }
+                    }
+                    Console.WriteLine("[" + cant_exp + " expedientes guardados en archivo " + rutaArchivo + "]");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("[ERROR AL GUARDAR ARCHIVO]: " + ex.Message);
+                }
+            }
+
         }
     }
 }
