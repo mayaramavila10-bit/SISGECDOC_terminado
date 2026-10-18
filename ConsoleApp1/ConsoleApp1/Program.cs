@@ -11,8 +11,9 @@ namespace ConsoleApp1
     {
         class SISGECDOC
         {
+
             // =========================================================================
-            // VARIABLES GLOBALES Y ARREGLOS PARALELOS 
+            // VARIABLES GLOBALES Y ARREGLOS PARALELOS (Basado en estilo de clase)
             // =========================================================================
             static int max_exp = 100;
             static string[] codigos = new string[max_exp];
@@ -86,8 +87,8 @@ namespace ConsoleApp1
             static public bool Validar_datos(string dni, string nombres, int folios)
             {
                 bool esValido = true;
-
-                if (dni.Length != 8 || !long.TryParse(dni, out _))
+                //cambio por la orsevación para que np ingrese números negativos y que el dni sea de 8 digitos
+                if (dni.Length != 8 || !dni.All(char.IsDigit))
                 {
                     Console.WriteLine("[ERROR] El DNI debe contener exactamente 8 dígitos numéricos.");
                     esValido = false;
@@ -120,6 +121,7 @@ namespace ConsoleApp1
                 else
                     return "EXP-2026-" + numero;
             }
+
             // =========================================================================
             // MÓDULO 1: REGISTRO DE EXPEDIENTE Y IMPRESIÓN DE CARGO DIGITAL
             // =========================================================================
@@ -147,7 +149,6 @@ namespace ConsoleApp1
                     folios = 0;
                 }
 
-                // Validar datos de entrada
                 if (!Validar_datos(dni, nombres, folios))
                 {
                     Console.WriteLine("[REGISTRO CANCELADO] Por favor corrija los datos e intente nuevamente.");
@@ -160,12 +161,10 @@ namespace ConsoleApp1
                 Console.Write("Ingrese el Área de Destino (ej. Admisión, Historias Clínicas, Dirección): ");
                 string areaDestino = Console.ReadLine()?.Trim();
 
-                // Asignación de correlativo y fecha
                 string codigoNuevo = Generar_correlativo(cant_exp + 1);
                 string fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
                 string estadoInicial = "Recibido";
 
-                // Almacenar en arreglos paralelos
                 codigos[cant_exp] = codigoNuevo;
                 fechas[cant_exp] = fechaHora;
                 dnis[cant_exp] = dni;
@@ -178,14 +177,11 @@ namespace ConsoleApp1
 
                 cant_exp++;
 
-                // Guardar automáticamente en el archivo de datos
                 Guardar_datos_Archivo();
-              
 
-                // Imprimir Cargo Digital
                 Console.WriteLine("================================================================================");
-                Console.WriteLine("              CONSTANCIA DE RECEPCIÓN - CARGO DIGITAL                          ");
-                Console.WriteLine("                  CENTRO DE SALUD MIRONES - MINSA                               ");
+                Console.WriteLine("             CONSTANCIA DE RECEPCIÓN - CARGO DIGITAL                            ");
+                Console.WriteLine("                 CENTRO DE SALUD MIRONES - MINSA                                ");
                 Console.WriteLine("================================================================================");
                 Console.WriteLine(" N° EXPEDIENTE   : " + codigoNuevo);
                 Console.WriteLine(" FECHA Y HORA    : " + fechaHora);
@@ -284,7 +280,6 @@ namespace ConsoleApp1
                             areas[i] = nuevaArea;
                             estados[i] = "Derivado";
 
-                            // Actualizar archivo .txt
                             Guardar_datos_Archivo();
 
                             Console.WriteLine("[ÉXITO] Expediente " + codigos[i] + " derivado correctamente a " + nuevaArea);
@@ -309,8 +304,8 @@ namespace ConsoleApp1
             static public void Reimprimir_cargo()
             {
                 Console.Clear();
-                Console.WriteLine("** GENERAR / REIMPRIMIR CARGO DIGITAL **");
-                Console.WriteLine("****************");
+                Console.WriteLine("***** GENERAR / REIMPRIMIR CARGO DIGITAL *****");
+                Console.WriteLine("**********************************************");
 
                 Console.Write("Ingrese Código de Expediente: ");
                 string buscarCod = Console.ReadLine()?.Trim().ToUpper();
@@ -323,8 +318,8 @@ namespace ConsoleApp1
                     {
                         encontrado = true;
                         Console.WriteLine("================================================================================");
-                        Console.WriteLine("              CONSTANCIA DE RECEPCIÓN - CARGO DIGITAL                          ");
-                        Console.WriteLine("                  CENTRO DE SALUD MIRONES - MINSA                               ");
+                        Console.WriteLine("             CONSTANCIA DE RECEPCIÓN - CARGO DIGITAL                            ");
+                        Console.WriteLine("                 CENTRO DE SALUD MIRONES - MINSA                                ");
                         Console.WriteLine("================================================================================");
                         Console.WriteLine(" N° EXPEDIENTE   : " + codigos[i]);
                         Console.WriteLine(" FECHA Y HORA    : " + fechas[i]);
@@ -346,8 +341,83 @@ namespace ConsoleApp1
             }
 
             // =========================================================================
-            // MÓDULO 5: GUARDAR DATOS EN ARCHIVO (.txt) (StreamWriter)
-            // Estilo exacto del ejercicio Caso-Empleado de clase
+            // MÓDULO 5: ORDENAMIENTO ALFABÉTICO (A-Z) POR NOMBRE
+            // =========================================================================
+            static public void Ordenar_expedientes_alfabeticamente()
+            {
+                Console.Clear();
+                Console.WriteLine("************ ORDENAR EXPEDIENTES (A-Z) *********");
+                Console.WriteLine("********************************----------------");
+
+                if (cant_exp <= 1)
+                {
+                    Console.WriteLine("No hay suficientes expedientes para ordenar.");
+                    return;
+                }
+
+                for (int i = 0; i < cant_exp - 1; i++)
+                {
+                    for (int j = 0; j < cant_exp - i - 1; j++)
+                    {
+                        if (string.Compare(nombresExp[j], nombresExp[j + 1], StringComparison.OrdinalIgnoreCase) > 0)
+                        {
+                            string tempCod = codigos[j]; codigos[j] = codigos[j + 1]; codigos[j + 1] = tempCod;
+                            string tempFec = fechas[j]; fechas[j] = fechas[j + 1]; fechas[j + 1] = tempFec;
+                            string tempDni = dnis[j]; dnis[j] = dnis[j + 1]; dnis[j + 1] = tempDni;
+                            string tempNom = nombresExp[j]; nombresExp[j] = nombresExp[j + 1]; nombresExp[j + 1] = tempNom;
+                            string tempAsu = asuntos[j]; asuntos[j] = asuntos[j + 1]; asuntos[j + 1] = tempAsu;
+                            int tempFol = foliosExp[j]; foliosExp[j] = foliosExp[j + 1]; foliosExp[j + 1] = tempFol;
+                            string tempAre = areas[j]; areas[j] = areas[j + 1]; areas[j + 1] = tempAre;
+                            string tempEst = estados[j]; estados[j] = estados[j + 1]; estados[j + 1] = tempEst;
+                            string tempOpe = operadores[j]; operadores[j] = operadores[j + 1]; operadores[j + 1] = tempOpe;
+                        }
+                    }
+                }
+
+                Guardar_datos_Archivo();
+                Console.WriteLine("[ÉXITO] Expedientes ordenados alfabéticamente por nombre del solicitante.");
+            }
+
+            // =========================================================================
+            // MÓDULO 6: ORDENAR POR ORDEN DE INGRESO ORIGINAL
+            // =========================================================================
+            static public void Ordenar_por_orden_original()
+            {
+                Console.Clear();
+                Console.WriteLine("********* ORDENAR POR ORDEN DE INGRESO ORIGINAL *********");
+                Console.WriteLine("********************************************************");
+
+                if (cant_exp <= 1)
+                {
+                    Console.WriteLine("No hay suficientes expedientes para ordenar.");
+                    return;
+                }
+
+                for (int i = 0; i < cant_exp - 1; i++)
+                {
+                    for (int j = 0; j < cant_exp - i - 1; j++)
+                    {
+                        if (string.Compare(codigos[j], codigos[j + 1], StringComparison.OrdinalIgnoreCase) > 0)
+                        {
+                            string tempCod = codigos[j]; codigos[j] = codigos[j + 1]; codigos[j + 1] = tempCod;
+                            string tempFec = fechas[j]; fechas[j] = fechas[j + 1]; fechas[j + 1] = tempFec;
+                            string tempDni = dnis[j]; dnis[j] = dnis[j + 1]; dnis[j + 1] = tempDni;
+                            string tempNom = nombresExp[j]; nombresExp[j] = nombresExp[j + 1]; nombresExp[j + 1] = tempNom;
+                            string tempAsu = asuntos[j]; asuntos[j] = asuntos[j + 1]; asuntos[j + 1] = tempAsu;
+                            int tempFol = foliosExp[j]; foliosExp[j] = foliosExp[j + 1]; foliosExp[j + 1] = tempFol;
+                            string tempAre = areas[j]; areas[j] = areas[j + 1]; areas[j + 1] = tempAre;
+                            string tempEst = estados[j]; estados[j] = estados[j + 1]; estados[j + 1] = tempEst;
+                            string tempOpe = operadores[j]; operadores[j] = operadores[j + 1]; operadores[j + 1] = tempOpe;
+                        }
+                    }
+                }
+
+                Guardar_datos_Archivo();
+                Console.WriteLine("[ÉXITO] Expedientes devueltos a su orden original de ingreso.");
+            }
+
+            // =========================================================================
+            // MÓDULO 7: GUARDAR DATOS EN ARCHIVO (.txt) (StreamWriter)
             // =========================================================================
             static public void Guardar_datos_Archivo()
             {
@@ -373,9 +443,9 @@ namespace ConsoleApp1
                     Console.WriteLine("[ERROR AL GUARDAR ARCHIVO]: " + ex.Message);
                 }
             }
+
             // =========================================================================
-            // MÓDULO 6: LEER DATOS DIRECTAMENTE DEL ARCHIVO (StreamReader)
-            // Estilo exacto de Leer_datos_Archivo de la clase
+            // MÓDULO 8: LEER DATOS DIRECTAMENTE DEL ARCHIVO (StreamReader)
             // =========================================================================
             static public void Leer_datos_Archivo()
             {
@@ -408,8 +478,7 @@ namespace ConsoleApp1
             }
 
             // =========================================================================
-            // MÓDULO 7: CARGAR DATOS DESDE ARCHIVO A MEMORIA (File.ReadAllLines)
-            // Estilo exacto de Cargar_datos_Archivo de la clase
+            // MÓDULO 9: CARGAR DATOS DESDE ARCHIVO A MEMORIA (File.ReadAllLines)
             // =========================================================================
             static public void Cargar_datos_Archivo()
             {
@@ -451,14 +520,12 @@ namespace ConsoleApp1
             }
 
             // =========================================================================
-            // MÓDULO PRINCIPAL (Main) - Estructura usada en los ejercicios de clase
+            // MÓDULO PRINCIPAL (Main)
             // =========================================================================
             static void Main(string[] args)
             {
-                // 1. Cargar datos desde archivo al iniciar el programa
                 Cargar_datos_Archivo();
 
-                // 2. Control de acceso
                 if (!Control_acceso())
                 {
                     Console.WriteLine("[ACCESO DENEGADO] Fin del programa.");
@@ -467,7 +534,7 @@ namespace ConsoleApp1
                 }
 
                 int opc = 0;
-                while (opc != 7)
+                while (opc != 9)
                 {
                     Console.Clear();
                     Titulo();
@@ -478,9 +545,11 @@ namespace ConsoleApp1
                     Console.WriteLine("[2] Buscar expediente (por DNI o Código)");
                     Console.WriteLine("[3] Derivar expediente a área interna");
                     Console.WriteLine("[4] Generar / Reimprimir Cargo Digital");
-                    Console.WriteLine("[5] Guardar datos en archivo txt");
-                    Console.WriteLine("[6] Leer datos directamente del archivo txt");
-                    Console.WriteLine("[7] Salir del sistema");
+                    Console.WriteLine("[5] Ordenar expedientes alfabéticamente (A-Z)");
+                    Console.WriteLine("[6] Ordenar por orden de ingreso original");
+                    Console.WriteLine("[7] Guardar datos en archivo txt");
+                    Console.WriteLine("[8] Leer datos directamente del archivo txt");
+                    Console.WriteLine("[9] Salir del sistema");
                     Console.WriteLine("--------------------------------------------------");
                     Console.Write("Ingresar opción: ");
 
@@ -506,22 +575,28 @@ namespace ConsoleApp1
                             Reimprimir_cargo();
                             break;
                         case 5:
-                            Guardar_datos_Archivo();
+                            Ordenar_expedientes_alfabeticamente();
                             break;
                         case 6:
-                            Leer_datos_Archivo();
+                            Ordenar_por_orden_original();
                             break;
                         case 7:
+                            Guardar_datos_Archivo();
+                            break;
+                        case 8:
+                            Leer_datos_Archivo();
+                            break;
+                        case 9:
                             Console.WriteLine("Cerrando sesión y guardando datos en " + rutaArchivo + "...");
                             Guardar_datos_Archivo();
                             Console.WriteLine("Gracias por utilizar SISGECDOC.");
                             break;
                         default:
-                            Console.WriteLine("Opción incorrecta, elija de 1 a 7.");
+                            Console.WriteLine("Opción incorrecta, elija de 1 a 9.");
                             break;
                     }
 
-                    if (opc != 7)
+                    if (opc != 9)
                     {
                         Console.WriteLine("Presione cualquier tecla para continuar...");
                         Console.ReadKey();
@@ -530,4 +605,4 @@ namespace ConsoleApp1
             }
         }
     }
-}
+}   

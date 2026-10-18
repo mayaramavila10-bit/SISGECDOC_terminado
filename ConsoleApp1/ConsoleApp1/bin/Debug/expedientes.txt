@@ -1,1 +1,3 @@
 EXP-2026-001|14/10/2026 22:12:34|77601110|Mayara Dafné Mavila Mejía|tikeck|3|Admisión|Recibido|admin
+EXP-2026-002|18/10/2026 16:32:15|77601110|Maya Dáfne Mavila Mejía|Consulta medica|4|Historias clinicas|Recibido|admin
+EXP-2026-003|18/10/2026 16:33:07|11556234|Andre Matias Lopez Aliaga|Tramite de documentos|4|Direccion|Recibido|admin
